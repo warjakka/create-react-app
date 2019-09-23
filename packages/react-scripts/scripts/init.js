@@ -84,6 +84,22 @@ module.exports = function(
 ) {
   const appPackage = require(path.join(appPath, 'package.json'));
   const useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'));
+
+  if (!templateName) {
+    console.log('');
+    console.error(
+      `A template was not provided. This is likely because you're using an outdated version of ${chalk.cyan(
+        'create-react-app'
+      )}.`
+    );
+    console.error(
+      `Please note that global installs of ${chalk.cyan(
+        'create-react-app'
+      )} are no longer supported.`
+    );
+    return;
+  }
+
   const templatePath = path.join(appPath, 'node_modules', templateName);
 
   // Copy over some of the devDependencies
@@ -127,6 +143,25 @@ module.exports = function(
       `Could not locate supplied template: ${chalk.green(templateDir)}`
     );
     return;
+  }
+
+  // Rename gitignore after the fact to prevent npm from renaming it to .npmignore
+  // See: https://github.com/npm/npm/issues/1862
+  try {
+    fs.moveSync(
+      path.join(appPath, 'gitignore'),
+      path.join(appPath, '.gitignore'),
+      []
+    );
+  } catch (err) {
+    // Append if there's already a `.gitignore` file there
+    if (err.code === 'EEXIST') {
+      const data = fs.readFileSync(path.join(appPath, 'gitignore'));
+      fs.appendFileSync(path.join(appPath, '.gitignore'), data);
+      fs.unlinkSync(path.join(appPath, 'gitignore'));
+    } else {
+      throw err;
+    }
   }
 
   let command;
