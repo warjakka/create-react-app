@@ -1,6 +1,6 @@
 {
   "name": "html-loader-react-scripts",
-  "version": "3.1.2",
+  "version": "1.0.0",
   "description": "CUSTOM configuration and scripts for Create React App.",
   "license": "MIT",
   "engines": {
